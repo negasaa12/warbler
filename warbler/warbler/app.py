@@ -348,6 +348,26 @@ def show_likes(user_id):
     return render_template('/users/likes.html', user=user, messages=messages, likes=likes)
 
 
+@app.route('/users/un_like/<int:message_id>', methods=['POST'])
+def unlike_message(message_id):
+    """ Un-likes a message """
+
+    if not g.user:
+        flash("Access unauthorized.", "danger")
+        return redirect("/")
+
+    message = Message.query.get_or_404(message_id)
+
+    if message.user_id != g.user.id:
+        Likes.query.filter_by(message_id=message_id).delete()
+        db.session.commit()
+        flash('like removed', category='success')
+        return redirect('/')
+
+    flash('users own message, can not un-like', category='danger')
+    return redirect('/')
+
+
 ##############################################################################
 # Homepage and error pages
 
